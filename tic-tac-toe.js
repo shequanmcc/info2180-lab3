@@ -1,44 +1,48 @@
-// INFO2180 Lab 3 - Exercise 1 & 2
-// Author: Shequan
-
 window.addEventListener("DOMContentLoaded", function () {
-  // Select all the <div> elements inside the board
   const squares = document.querySelectorAll("#board div");
+  const status = document.getElementById("status");
 
-  // Exercise 1: add the 'square' class to each board cell
+  squares.forEach(sq => sq.classList.add("square"));
+
+  // Hover effect
   squares.forEach(function (square) {
-    square.classList.add("square");
+    square.addEventListener("mouseenter", () => square.classList.add("hover"));
+    square.addEventListener("mouseleave", () => square.classList.remove("hover"));
   });
 
-  // Exercise 2 (part 1): add hover effect
-  squares.forEach(function (square) {
-    // When the mouse enters the square
-    square.addEventListener("mouseenter", function () {
-      square.classList.add("hover");
-    });
+  // Variables for game logic
+  let currentPlayer = "X";
+  let gameOver = false;
+  const board = Array(9).fill(null);
+  const winningCombos = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
+  ];
 
-    // When the mouse leaves the square
-    square.addEventListener("mouseleave", function () {
-      square.classList.remove("hover");
-    });
-  });
-
-  // Exercise 2 (part 2): Add X or O on click
-  let currentPlayer = "X"; // The first move will be X
-
-  squares.forEach(function (square) {
+  // Handle click
+  squares.forEach(function (square, index) {
     square.addEventListener("click", function () {
-      // Only allow a move if this square is empty
+      if (gameOver) return;
       if (square.textContent === "") {
-        // 1️⃣ Put X or O in the square
         square.textContent = currentPlayer;
-
-        // 2️⃣ Style it by adding the class X or O
         square.classList.add(currentPlayer);
+        board[index] = currentPlayer;
 
-        // 3️⃣ Switch turns
+        if (checkWinner(currentPlayer)) {
+          status.textContent = `Congratulations! ${currentPlayer} is the Winner!`;
+          status.classList.add("you-won");
+          gameOver = true;
+          return;
+        }
+
         currentPlayer = currentPlayer === "X" ? "O" : "X";
       }
     });
   });
+
+  // Winner checker
+  function checkWinner(player) {
+    return winningCombos.some(combo => combo.every(i => board[i] === player));
+  }
 });
